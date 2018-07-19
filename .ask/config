@@ -1,0 +1,40 @@
+{
+  "deploy_settings": {
+    "default": {
+      "skill_id": "amzn1.ask.skill.b88a77c5-5736-461f-94fe-f712d6eabfaf",
+      "was_cloned": false,
+      "resources": {
+        "manifest": {
+          "eTag": "827c313c1107c38ef4a0553c8b4c4fbe"
+        },
+        "interactionModel": {
+          "en-GB": {
+            "eTag": "74d2ffcfeb56983c20c3b89f7e8e067c"
+          }
+        },
+        "lambda": [
+          {
+            "arn": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy",
+            "awsRegion": "us-east-1",
+            "functionName": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy",
+            "alexaUsage": [
+              "custom/default"
+            ],
+            "revisionId": "52b3f05d-28d2-4c4c-9f36-6d4fd27ec7dc"
+          }
+        ]
+      },
+      "merge": {
+        "manifest": {
+          "apis": {
+            "custom": {
+              "endpoint": {
+                "uri": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

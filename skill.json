@@ -1,0 +1,20 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-GB": {
+          "name": "CookingBuddy"
+        }
+      }
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": ".\\lambda\\eu-west-1_cookingBuddy"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0"
+  }
+}

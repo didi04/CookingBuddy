@@ -1,0 +1,68 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "cooking buddy",
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "RequireRecipeIntent",
+          "slots": [
+            {
+              "name": "ingredient",
+              "type": "AMAZON.Food"
+            }
+          ],
+          "samples": [
+            "I feel like eating {ingredient}",
+            "how to cook an {ingredient}",
+            "how to cook a {ingredient}",
+            "how to cook a {ingredient} {ingredient}",
+            "give me a recipe with {ingredient} {ingredient}",
+            "I have {ingredient} {ingredient} {ingredient}",
+            "I have {ingredient} {ingredient}",
+            "I have {ingredient} ",
+            "tell me a meal with {ingredient} {ingredient}",
+            "tell me a meal with {ingredient} {ingredient} {ingredient}",
+            "tell me a meal with {ingredient}",
+            "give me a recipe with {ingredient}"
+          ]
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PauseIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NextIntent",
+          "samples": []
+        }
+      ]
+    }
+  }
+}
