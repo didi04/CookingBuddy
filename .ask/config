@@ -1,11 +1,11 @@
 {
   "deploy_settings": {
     "default": {
-      "skill_id": "amzn1.ask.skill.794d7ffd-9023-4593-949a-894f0d00da35",
-      "was_cloned": false,
+      "skill_id": "amzn1.ask.skill.d8e58da2-6971-459c-8adc-df5314861d4b",
+      "was_cloned": true,
       "resources": {
         "manifest": {
-          "eTag": "906b29f73c0ec7ed7d3ae38d2b578ef2"
+          "eTag": "b6a9bef6b36f6e4526d76782a42d54d3"
         },
         "interactionModel": {
           "en-GB": {
@@ -14,13 +14,13 @@
         },
         "lambda": [
           {
-            "arn": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy",
-            "awsRegion": "us-east-1",
-            "functionName": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy",
+            "arn": "arn:aws:lambda:eu-west-1:075416524439:function:CookingBuddy",
+            "awsRegion": "eu-west-1",
+            "functionName": "CookingBuddy",
             "alexaUsage": [
               "custom/default"
             ],
-            "revisionId": "09f5537f-2a14-49cd-b274-b9fa6f40e238"
+            "revisionId": "c7f0dea8-0545-4ee9-8cf1-fa4e22dcd8ed"
           }
         ]
       },
@@ -29,7 +29,7 @@
           "apis": {
             "custom": {
               "endpoint": {
-                "uri": "arn:aws:lambda:eu-west-1:075416524439:function:cookingBuddy"
+                "uri": "arn:aws:lambda:eu-west-1:075416524439:function:CookingBuddy"
               }
             }
           }

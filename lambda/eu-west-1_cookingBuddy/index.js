@@ -3,18 +3,18 @@
 const Alexa = require('alexa-sdk');
 var http = require('http');
 
-const APP_ID = "amzn1.ask.skill.70ee429c-4756-4c35-a68f-b0e8b37245a7"; 
+const APP_ID = "amzn1.ask.skill.794d7ffd-9023-4593-949a-894f0d00da35"; 
 
 const languageStrings = {
     'en': {
         translation: {
-            SKILL_NAME: 'Cooking Buddy',
-            WELCOME_MESSAGE: "Welcome to %s. I will be your cooking assistant, and together we will cook up a storm! You can ask me for a recipee with any ingredient or a list of ingredients. You can ask a question like, give me a recipe with lamb chops. ...Or perhaps be more specific, and say: tell me a recipe with lamb chops and tomato. I will provide you with the ingredients and the steps to prepare an outstanding meal! Are you ready? Now, what can I help you with?",
+            SKILL_NAME: 'Cooking Buddy Pro',
+            WELCOME_MESSAGE: 'Welcome to %s. You can ask me for a recipe with any ingredient.  Now, what can I help you with?',
             WELCOME_REPROMPT: 'For instructions on what you can say or ask for, please say help me.',
             DISPLAY_CARD_TITLE: '%s  - Recipe for %s.',
-            HELP_MESSAGE: "You can ask questions such as, tell me a recipe for ratatouille, or, suggest me a meal with potato, chicken and spinnach. Alternatively, you can say exit...Now, what can I help you with?",
+            HELP_MESSAGE: "I will be your cooking assistent! You can ask questions such as, tell me a recipe for ratatouille, or, suggest me a meal with potato, chicken and spinnach. Alternatively, you can say exit...Now, what can I help you with?",
             HELP_REPROMPT: "You can ask me for any recipee or just list your ingredients...Now, what can I help you with?",
-            STOP_MESSAGE: 'Goodbye!',
+            STOP_MESSAGE: 'Okay. Goodbye! Talk to you soon!',
             CANCEL_MESSAGE: 'Okay. Would you like to ask me anything else?',
             RECIPE_REPEAT_MESSAGE: 'Try saying repeat.',
             RECIPE_NOT_FOUND_MESSAGE: "I\'m sorry, I couldn\ 't find a recipe. Try changing your search and ask again ",
@@ -22,6 +22,8 @@ const languageStrings = {
             RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that recipe. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
             REQUEST_MESSAGE: 'Here is the recipe I found for you:',
+            LIKE_RECIPE_MESSAGE: 'Great! Here are the ingredients for this recipe: ',
+            DISLIKE_RECIPE_MESSAGE: 'Here is another recipe, based on your search. If you do not want to proceed, say Cancel',
         },
     },
     'en-US': {
@@ -73,6 +75,21 @@ const handlers = {
         this.response.speak(this.t('CANCEL_MESSAGE'));
         this.emit(':responseReady');
     },
+
+    'AMAZON.NoIntent': function () {
+        const speechOutput = this.t('DISLIKE_RECIPE_MESSAGE');
+        this.response.speak(speechOutput);
+        this.emit(':responseReady');
+        // TODO quer and return the next recipe
+    },   
+    
+    'AMAZON.YesIntent': function () {
+        const speechOutput = this.t('LIKE_RECIPE_MESSAGE');
+        this.response.speak(speechOutput);
+        this.emit(':responseReady');
+        //TODO quer and return the ingredients
+    }, 
+
     /** Handles the exit of the current session **/
     'SessionEndedRequest': function () {
         console.log(`Session ended: ${this.event.request.reason}`);
@@ -89,15 +106,32 @@ const handlers = {
     'RequireRecipeIntent': function(){
         const ingredients = this.event.request.intent.slots.ingredient.value; //get the ingredient(s) requested by the user
         const recipe = getRecipes(ingredients, (response) => { //quer the recipes based on the ingredient(s)
-            const speechOutput = response.recipes[0].title; // get the first recipe's title
-            if (speechOutput != null){
-                this.response.cardRenderer(recipe);
-                this.response.speak("The best recipe I found is: " + speechOutput + ". Do you like this recipe or not?");
+            // do{
+            let recipeIndex = 0;
+            let speechOutput = response.recipes[recipeIndex].title; // get the recipe's title
+            if (speechOutput != null){ // check for a matching recipe
+                this.response.cardRenderer(speechOutput); // display the recipe on a card 
+                this.response.speak("The best recipe I found is: " 
+                + speechOutput + ". Do you like this recipe or not?").listen(speechOutput); // respond to the user with the recipe
                 this.emit(':responseReady'); 
             }
-            else{
+            else{ // if there is no matching recipe
                 this.response.speak(this.t('RECIPE_NOT_FOUND_MESSAGE'));
+                this.emit(':responseReady'); 
+        
             }
+        recipeIndex++;
+        // }
+        // while(!userLikesRecipe);
+        getIngredients(response.recipes[recipeIndex].recipe_id, (response) => {
+            let ingredients = response.recipe.ingredients;
+            for (var ingredient in ingredients){
+                this.response.cardRenderer(ingredient);
+                this.response.speak(ingredient);
+                this.emit(':responseReady'); 
+            }
+        });
+
         });
     },
 };
@@ -139,4 +173,37 @@ function getRecipes(querry, callback){
     });
     req.end();
     
+}
+
+/** A function to quer a list of the ingredients for given recipe from the API
+    @param recipeId
+    @return json formatted list of ingredients
+**/
+
+function getIngredients(recipeId, callback){
+    var options = {
+        host: 'food2fork.com',
+        path: '/api/get?key=ea145621a47832c8c46dbe98fe0e3348&rId=' + encodeURIComponent(recipeId),
+        method: 'GET',
+    };
+    var req = http.request(options, res => {
+        res.setEncoding('utf8');
+        var responseString= "";
+        
+        //accept incoming data asynchronously
+        res.on('data', chunk => {
+            console.log(chunk);
+            responseString = responseString + chunk;
+        });
+        
+        //return the data when streaming is complete
+        res.on('end', () => {
+            callback(JSON.parse(responseString));
+        });
+    });
+    req.end();
+}
+
+function userLikesRecipe(){
+
 }

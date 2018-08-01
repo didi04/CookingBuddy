@@ -10,7 +10,7 @@
     "apis": {
       "custom": {
         "endpoint": {
-          "sourceDir": ".\\lambda\\eu-west-1_cookingBuddy"
+          "sourceDir": ".\\lambda\\eu-west-1_CookingBuddy"
         },
         "interfaces": []
       }
