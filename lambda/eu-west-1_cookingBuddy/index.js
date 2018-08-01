@@ -2,6 +2,9 @@
 
 const Alexa = require('alexa-sdk');
 var http = require('http');
+var recipeIndex = 0;
+var recipeID = 0;
+
 
 const APP_ID = "amzn1.ask.skill.794d7ffd-9023-4593-949a-894f0d00da35"; 
 
@@ -76,18 +79,30 @@ const handlers = {
         this.emit(':responseReady');
     },
 
+    /** Activates when user dislikes a given recipe and
+     * provides them with a new one **/
     'AMAZON.NoIntent': function () {
         const speechOutput = this.t('DISLIKE_RECIPE_MESSAGE');
+        recipeIndex++;
+
         this.response.speak(speechOutput);
         this.emit(':responseReady');
         // TODO quer and return the next recipe
+
     },   
     
+    /** Activates when the user likes a given recipe
+     * and provides them with the ingredients**/
     'AMAZON.YesIntent': function () {
-        const speechOutput = this.t('LIKE_RECIPE_MESSAGE');
-        this.response.speak(speechOutput);
+        let speechOutput = this.t('LIKE_RECIPE_MESSAGE');
+        getIngredients(recipeID, (responseAPI) => {
+            let ingredients = responseAPI.recipe.ingredients;
+        for (let i=0; i<ingredients.length - 1;i++){
+                speechOutput+= ingredients[i] + ". "; 
+            }
+            this.response.speak(speechOutput);
         this.emit(':responseReady');
-        //TODO quer and return the ingredients
+        });
     }, 
 
     /** Handles the exit of the current session **/
@@ -106,32 +121,18 @@ const handlers = {
     'RequireRecipeIntent': function(){
         const ingredients = this.event.request.intent.slots.ingredient.value; //get the ingredient(s) requested by the user
         const recipe = getRecipes(ingredients, (response) => { //quer the recipes based on the ingredient(s)
-            // do{
-            let recipeIndex = 0;
             let speechOutput = response.recipes[recipeIndex].title; // get the recipe's title
             if (speechOutput != null){ // check for a matching recipe
                 this.response.cardRenderer(speechOutput); // display the recipe on a card 
                 this.response.speak("The best recipe I found is: " 
                 + speechOutput + ". Do you like this recipe or not?").listen(speechOutput); // respond to the user with the recipe
                 this.emit(':responseReady'); 
+                recipeID = response.recipes[recipeIndex].recipe_id;
             }
             else{ // if there is no matching recipe
                 this.response.speak(this.t('RECIPE_NOT_FOUND_MESSAGE'));
                 this.emit(':responseReady'); 
-        
-            }
-        recipeIndex++;
-        // }
-        // while(!userLikesRecipe);
-        getIngredients(response.recipes[recipeIndex].recipe_id, (response) => {
-            let ingredients = response.recipe.ingredients;
-            for (var ingredient in ingredients){
-                this.response.cardRenderer(ingredient);
-                this.response.speak(ingredient);
-                this.emit(':responseReady'); 
-            }
-        });
-
+            }     
         });
     },
 };
@@ -204,6 +205,3 @@ function getIngredients(recipeId, callback){
     req.end();
 }
 
-function userLikesRecipe(){
-
-}
