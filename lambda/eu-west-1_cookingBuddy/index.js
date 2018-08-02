@@ -2,6 +2,7 @@
 
 const Alexa = require('alexa-sdk');
 var http = require('http');
+var ingredients;
 var recipeIndex = 0;
 var recipeID = 0;
 
@@ -11,22 +12,22 @@ const APP_ID = "amzn1.ask.skill.794d7ffd-9023-4593-949a-894f0d00da35";
 const languageStrings = {
     'en': {
         translation: {
-            SKILL_NAME: 'Cooking Buddy Pro',
+            SKILL_NAME: 'Cooking Buddy',
             WELCOME_MESSAGE: 'Welcome to %s. You can ask me for a recipe with any ingredient.  Now, what can I help you with?',
             WELCOME_REPROMPT: 'For instructions on what you can say or ask for, please say help me.',
             DISPLAY_CARD_TITLE: '%s  - Recipe for %s.',
             HELP_MESSAGE: "I will be your cooking assistent! You can ask questions such as, tell me a recipe for ratatouille, or, suggest me a meal with potato, chicken and spinnach. Alternatively, you can say exit...Now, what can I help you with?",
             HELP_REPROMPT: "You can ask me for any recipee or just list your ingredients...Now, what can I help you with?",
             STOP_MESSAGE: 'Okay. Goodbye! Talk to you soon!',
-            CANCEL_MESSAGE: 'Okay. Would you like to ask me anything else?',
+            CANCEL_MESSAGE: 'Okay. Goodbye!',
             RECIPE_REPEAT_MESSAGE: 'Try saying repeat.',
             RECIPE_NOT_FOUND_MESSAGE: "I\'m sorry, I couldn\ 't find a recipe. Try changing your search and ask again ",
-            RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the recipe for %s. ',
-            RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that recipe. ',
             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
             REQUEST_MESSAGE: 'Here is the recipe I found for you:',
             LIKE_RECIPE_MESSAGE: 'Great! Here are the ingredients for this recipe: ',
-            DISLIKE_RECIPE_MESSAGE: 'Here is another recipe, based on your search. If you do not want to proceed, say Cancel',
+            DISLIKE_RECIPE_MESSAGE: 'Okay. If you do not want to proceed, say Cancel. If you want to proceed, say Next.',
+            NEXT_MESSAGE: 'Let\'s try this one: ',
+            RECIPE_APPROVAL_MESSAGE:'. Do you like this recipe? ',
         },
     },
     'en-US': {
@@ -83,13 +84,29 @@ const handlers = {
      * provides them with a new one **/
     'AMAZON.NoIntent': function () {
         const speechOutput = this.t('DISLIKE_RECIPE_MESSAGE');
-        recipeIndex++;
-
-        this.response.speak(speechOutput);
+        this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
-        // TODO quer and return the next recipe
-
     },   
+
+    'AMAZON.NextIntent': function(){
+        let speechOutput = this.t('NEXT_MESSAGE');
+        recipeIndex++;
+        const recipe = getRecipes(ingredients, (response) => { //quer the recipes based on the ingredient(s)
+            let speechOutput = response.recipes[recipeIndex].title; // get the recipe's title
+            if (speechOutput != null){ // check for a matching recipe
+                speechOutput+= this.t('RECIPE_APPROVAL_MESSAGE');
+                this.response.cardRenderer(speechOutput); // display the recipe on a card 
+                this.response.speak("The best recipe I found is: " 
+                + speechOutput).listen(speechOutput); // respond to the user with the recipe
+                this.emit(':responseReady'); 
+                recipeID = response.recipes[recipeIndex].recipe_id;
+            }
+            else{ // if there is no matching recipe
+                this.response.speak(this.t('RECIPE_NOT_FOUND_MESSAGE'));
+                this.emit(':responseReady'); 
+            }     
+        });
+    },
     
     /** Activates when the user likes a given recipe
      * and provides them with the ingredients**/
@@ -119,13 +136,14 @@ const handlers = {
     },
     /** Handles the querry and the answer to a user's recipe request **/
     'RequireRecipeIntent': function(){
-        const ingredients = this.event.request.intent.slots.ingredient.value; //get the ingredient(s) requested by the user
+        ingredients = this.event.request.intent.slots.ingredient.value; //get the ingredient(s) requested by the user
         const recipe = getRecipes(ingredients, (response) => { //quer the recipes based on the ingredient(s)
             let speechOutput = response.recipes[recipeIndex].title; // get the recipe's title
             if (speechOutput != null){ // check for a matching recipe
+                speechOutput+= this.t('RECIPE_APPROVAL_MESSAGE');
                 this.response.cardRenderer(speechOutput); // display the recipe on a card 
                 this.response.speak("The best recipe I found is: " 
-                + speechOutput + ". Do you like this recipe or not?").listen(speechOutput); // respond to the user with the recipe
+                + speechOutput).listen(speechOutput); // respond to the user with the recipe
                 this.emit(':responseReady'); 
                 recipeID = response.recipes[recipeIndex].recipe_id;
             }
