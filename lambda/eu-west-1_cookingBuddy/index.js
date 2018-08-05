@@ -222,4 +222,3 @@ function getIngredients(recipeId, callback){
     });
     req.end();
 }
-
